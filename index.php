@@ -1,112 +1,67 @@
 <?php
-$filePath = __DIR__ . '/data/data.json';
-//JSONを配列に変換する
-$list = [];
-if (file_exists($filePath)) {
-    $json = file_get_contents($filePath);
-    $decoded = json_decode($json, true);
-    if (is_array($decoded)){
-        $list = $decoded;
-    }
-}
 
-//JSONから受け取る
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
+
+require_once __DIR__ . "/db.php";
+
+//確認用、あとで消す
+$stmt = $pdo->query("SELECT COUNT(*) AS cnt FROM pesticides_base");
+$row = $stmt->fetch();
+$baseCount = (int)($row["cnt"] ?? 0);
+
+// =============================================
+// 作物・病害虫プルダウン
+// =============================================
 $category = $_GET["category"] ?? "殺虫剤";
 $crop = trim($_GET["crop"] ?? "");
 $target = trim($_GET["target"] ?? "");
-$sort = $_GET["sort"] ?? "score_desc";
+
+//作物プルダウン
+$stmt = $pdo->prepare(
+    "SELECT DISTINCT crop 
+    FROM pesticides_rules 
+    WHERE category = :category AND crop <> '' 
+    ORDER BY crop ASC
+    ");
+$stmt->execute([":category" => $category]);
+$cropOptions = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+//病害虫プルダウン
+$stmt = $pdo->prepare(
+    "SELECT DISTINCT target 
+    FROM pesticides_rules 
+    WHERE category = :category AND target <> '' 
+    ORDER BY target ASC
+    ");
+$stmt->execute([":category" => $category]);
+$targetOptions = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
 
 // =============================================
-// 作物、病害虫プルダウン
+// DBから検索結果取得、作物・病害虫絞り込み処理
 // =============================================
-$cropSet = [];
-$targetSet = [];
+$sql = "SELECT r.*, b.shopify_id
+    FROM pesticides_rules AS r
+    LEFT JOIN pesticides_base AS b
+        ON b.registration_number = r.registration_number
+    WHERE
+        r.category = :category
+        AND (:crop1 = '' OR r.crop = :crop2)
+        AND (:target1 = '' OR r.target = :target2)
+    ORDER BY r.name ASC";
 
-//foreach(配列 as 変数)は配列の中身を順番に取り出す
-//$listは農薬リスト、$pはその中のひとつの農薬データ
-foreach ($list as $p) {
-    //cropが配列じゃなかったら空配列で返す、$cropsは配列になる
-    $crops = is_array($p["crop"] ?? null) ? $p["crop"] : [];
-    //$cropsは作物リスト、$cはその中のひとつの作物名
-    //$cを文字列に変換して前後の空白を削る
-    //$cが空じゃなければ$cropSetの配列の中に追加する、重複は上書きされるので勝手に消える
-    foreach ($crops as $c) {
-        $c = trim((string)$c);
-        if ($c !== "") $cropSet[$c] = true;
-    }
+$stmt = $pdo->prepare($sql);
+$stmt->execute([
+    ":category" => $category,
+    ":crop1" => $crop,
+    ":crop2" => $crop,
+    ":target1" => $target,
+    ":target2" => $target,
+]);
 
-    //targetでも同じ処理
-    $targets = is_array($p["target"] ?? null) ? $p["target"] : [];
-    foreach ($targets as $t) {
-        $t = trim((string)$t);
-        if ($t !== "") $targetSet[$t] = true;
-    }
-}
-
-//array_keys()は配列のキーだけ取り出す
-$cropOptions = array_keys($cropSet);
-$targetOptions = array_keys($targetSet);
-
-//ざっくり文字順ソート
-sort($cropOptions, SORT_STRING);
-sort($targetOptions, SORT_STRING);
-
-// =============================================
-// 絞り込み、検索結果用の配列 $filtered を作る
-// =============================================
-
-//array_values()は配列のキーを0から振り直す
-//array_filter(A,B)はAの中のBだけ残す
-//use($aaa, $bbb)は外で定義した変数を関数の中で使えるようにする
-$filtered = array_values(array_filter($list, function($p) use ($category, $crop, $target) {
-
-    //カテゴリーが違ったらfalseを返す
-    if (($p["category"] ?? "") !== $category) return false;
-
-    // 作物が指定されていたらチェック
-    if ($crop !== "") {
-        //is_array()は配列かどうか調べる関数、配列ならtrue
-        //三項演算子… 条件 ? A : B (条件がtrueならA、falseならB)
-        //null合体演算子… A ?? B (Aが存在すればA、なければB)
-        //配列じゃなかったら空配列で返す
-        $crops = is_array($p["crop"] ?? null) ? $p["crop"] : [];
-        //in_array(A,B,C)はBの中にAがあるか調べる、Cは厳密に調べる(trueなら型も見る)
-        //!in_array()はBの中にAがなかったらtrue
-        if (!in_array($crop, $crops, true)) return false;
-    }
-
-    if ($target !== "") {
-        $targets = is_array($p["target"] ?? null) ? $p["target"] : [];
-        if (!in_array($target, $targets, true)) return false;
-    }
-
-    return true;
-}));
-
-// =============================================
-// 並び替え（スコア順、あいうえお順ソート）
-// =============================================
-if ($sort === "name_asc") {
-    //あいうえお順ソート
-    //usort(A,B)はAをBの条件でソートする
-    usort($filtered, function($a, $b){
-        $na = (string)($a["name"] ?? "");
-        $nb = (string)($b["name"] ?? "");
-    //b <=> a にすると降順ソートになる
-        return strcmp($na, $nb);
-    });
-} else {
-    //スコア順ソート（こっちがデフォルト）
-    usort($filtered, function($a, $b){
-        //スコアを整数(int)でふたつ取り出す、なければ0
-        $sa = (int)($a["score"] ?? 0);
-        $sb = (int)($b["score"] ?? 0);
-        //a <=> b 宇宙船演算子、aが小さいと-1、同じなら0、大きいと1を返す
-        //b <=> a にすると降順ソートになる
-        return $sb <=> $sa;
-    });
-}
-
+$filtered = $stmt->fetchAll();
 $count = count($filtered);
 
 ?>
@@ -125,6 +80,8 @@ $count = count($filtered);
         <h1>カケトコ mini</h1>
         <a href="./admin/admin.php" class="admin_link">管理画面へ</a>
     </header>
+
+    <p>DB接続完了 / pesticides_base 件数: <?php echo $baseCount; ?></p>
 
     <main class="app_main">
         <section class="search_section">
@@ -205,7 +162,7 @@ $count = count($filtered);
                 <?php else: ?>
                     <?php foreach ($filtered as $i =>$p): ?>
                         <?php 
-                            $pid = $p["shopify_id"] ?? "";
+                            $pid = (string)($p["shopify_id"] ?? "");
                             $boxId = "buy-" . $i;
                             ?>
                             
@@ -244,8 +201,8 @@ $count = count($filtered);
                                         <span class="spec_label">収穫前日数</span>
                                         <span class="spec_val">
                                             <?php
-                                                echo isset($p["interval"])
-                                                    ? htmlspecialchars((string)$p["interval"], ENT_QUOTES, "UTF-8") . "日前まで" : "";
+                                                echo isset($p["timing"])
+                                                    ? htmlspecialchars((string)$p["timing"], ENT_QUOTES, "UTF-8") . "日前まで" : "";
                                             ?>
                                         </span>
                                     </div>
