@@ -1,4 +1,9 @@
 <?php
+
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
+
 require_once __DIR__ . "/db.php";
 
 //確認用、あとで消す
@@ -33,16 +38,25 @@ $stmt = $pdo->prepare(
 $stmt->execute([":category" => $category]);
 $targetOptions = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
+
 // =============================================
-// 検索結果をDBから取得
+// DBから検索結果取得
 // =============================================
-$sql = "SELECT *
+$sql = "SELECT * 
     FROM pesticides_rules 
-    WHERE category = :category
+    WHERE category = :category 
+        AND (:crop1 = '' OR crop = :crop2)
+        AND (:target1 = '' OR target = :target2)
     ORDER BY name ASC";
 
 $stmt = $pdo->prepare($sql);
-$stmt->execute([":category" => $category,]);
+$stmt->execute([
+    ":category" => $category,
+    ":crop1" => $crop,
+    ":crop2" => $crop,
+    ":target1" => $target,
+    ":target2" => $target,
+]);
 
 $filtered = $stmt->fetchAll();
 $count = count($filtered);
