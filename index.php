@@ -1,4 +1,10 @@
 <?php
+require_once __DIR__ . "/db.php";
+
+$stmt = $pdo->query("SELECT COUNT(*) AS cnt FROM pesticides_base");
+$row = $stmt->fetch();
+$baseCount = (int)($row["cnt" ?? 0]);
+
 $filePath = __DIR__ . '/data/data.json';
 //JSONを配列に変換する
 $list = [];
@@ -125,6 +131,8 @@ $count = count($filtered);
         <h1>カケトコ mini</h1>
         <a href="./admin/admin.php" class="admin_link">管理画面へ</a>
     </header>
+
+    <p>DB接続完了 / pesticides_base 件数: <?php echo $baseCount; ?></p>
 
     <main class="app_main">
         <section class="search_section">
