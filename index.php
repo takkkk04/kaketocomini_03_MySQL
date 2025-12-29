@@ -201,8 +201,8 @@ $count = count($filtered);
                                         <span class="spec_label">収穫前日数</span>
                                         <span class="spec_val">
                                             <?php
-                                                echo isset($p["interval"])
-                                                    ? htmlspecialchars((string)$p["interval"], ENT_QUOTES, "UTF-8") . "日前まで" : "";
+                                                echo isset($p["timing"])
+                                                    ? htmlspecialchars((string)$p["timing"], ENT_QUOTES, "UTF-8") . "日前まで" : "";
                                             ?>
                                         </span>
                                     </div>
