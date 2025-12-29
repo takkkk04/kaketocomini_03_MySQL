@@ -40,14 +40,17 @@ $targetOptions = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
 
 // =============================================
-// DBから検索結果取得
+// DBから検索結果取得、作物・病害虫絞り込み処理
 // =============================================
-$sql = "SELECT * 
-    FROM pesticides_rules 
-    WHERE category = :category 
-        AND (:crop1 = '' OR crop = :crop2)
-        AND (:target1 = '' OR target = :target2)
-    ORDER BY name ASC";
+$sql = "SELECT r.*, b.shopify_id
+    FROM pesticides_rules AS r
+    LEFT JOIN pesticides_base AS b
+        ON b.registration_number = r.registration_number
+    WHERE
+        r.category = :category
+        AND (:crop1 = '' OR r.crop = :crop2)
+        AND (:target1 = '' OR r.target = :target2)
+    ORDER BY r.name ASC";
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute([
@@ -159,7 +162,7 @@ $count = count($filtered);
                 <?php else: ?>
                     <?php foreach ($filtered as $i =>$p): ?>
                         <?php 
-                            $pid = $p["shopify_id"] ?? "";
+                            $pid = (string)($p["shopify_id"] ?? "");
                             $boxId = "buy-" . $i;
                             ?>
                             
