@@ -33,7 +33,19 @@ $stmt = $pdo->prepare(
 $stmt->execute([":category" => $category]);
 $targetOptions = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
+// =============================================
+// 検索結果をDBから取得
+// =============================================
+$sql = "SELECT *
+    FROM pesticides_rules 
+    WHERE category = :category
+    ORDER BY name ASC";
 
+$stmt = $pdo->prepare($sql);
+$stmt->execute([":category" => $category,]);
+
+$filtered = $stmt->fetchAll();
+$count = count($filtered);
 
 ?>
 
