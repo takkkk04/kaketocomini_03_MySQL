@@ -123,8 +123,20 @@ $targetListStmt = $pdo->prepare(
 </head>
 <body>
     <header class="app_header">
-        <h1>カケトコ mini</h1>
-        <a href="./admin/admin.php" class="admin_link">管理画面へ</a>
+        <h1 class="app_title">
+            <a href="./index.php">カケトコ mini</a>
+        </h1>
+
+        <div class="header_menu">
+            <button type="button" id="menu_btn" class="menu_btn" aria-expanded="false" aria-controls="menu_panel">
+                <span class="menu_icon" aria-hidden="true"></span>
+                <span class="sr_only">メニュー</span>
+            </button>
+
+            <div id="menu_panel" class="menu_panel" hidden>
+                <a href="./admin/admin.php" class="admin_item">管理画面</a>
+            </div>
+        </div>
     </header>
 
     <main class="app_main">
