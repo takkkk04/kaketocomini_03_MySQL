@@ -91,6 +91,25 @@ $stmt->execute([
 $filtered = $stmt->fetchAll();
 $count = count($filtered);
 
+//作物、病害虫一覧取得
+$cropListStmt = $pdo->prepare(
+    "SELECT DISTINCT crop
+    FROM pesticides_rules
+    WHERE registration_number = :reg
+        AND category = :category
+        AND crop <> ''
+    ORDER BY crop ASC"
+);
+
+$targetListStmt = $pdo->prepare(
+    "SELECT DISTINCT target
+    FROM pesticides_rules
+    WHERE registration_number = :reg
+        AND category = :category
+        AND target <> ''
+    ORDER BY target ASC"
+);
+
 ?>
 
 <!DOCTYPE html>
@@ -206,6 +225,12 @@ $count = count($filtered);
                         <?php 
                             $pid = (string)($p["shopify_id"] ?? "");
                             $boxId = "buy-" . $i;
+                            $reg = (string)($p["registration_number"] ?? "");
+                            //カード内作物・病害虫一覧
+                            $cropListStmt->execute([":reg" => $reg, ":category" => $category]);
+                            $cropList = $cropListStmt->fetchAll(PDO::FETCH_COLUMN);
+                            $targetListStmt->execute([":reg" => $reg, ":category" => $category]);
+                            $targetList = $targetListStmt->fetchAll(PDO::FETCH_COLUMN);
                             ?>
                             
                         <article class="result_card">
@@ -265,6 +290,39 @@ $count = count($filtered);
                                         </span>
                                     </div>
                                 </div>
+                            </div>
+
+                            <div class="card_lists">
+                                <details class="card_detail">
+                                    <summary>登録作物(<?php echo count($cropList); ?>)</summary>
+                                    <div class="detail_body">
+                                        <?php if (count($cropList) ===0): ?>
+                                            <p>なし</p>
+                                        <?php else: ?>
+                                            <ul>
+                                                <?php foreach ($cropList as $cItem): ?>
+                                                    <li><?php echo htmlspecialchars((string)$cItem, ENT_QUOTES, "UTF-8"); ?></li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        <?php endif; ?>
+                                    </div>
+                                </details>
+
+                                <details class="card_detail">
+                                    <summary>適用病害虫(<?php echo count($targetList); ?>)</summary>
+                                    <div class="detail_body">
+                                        <?php if (count($targetList) ===0): ?>
+                                            <p>なし</p>
+                                        <?php else: ?>
+                                            <ul>
+                                                <?php foreach ($targetList as $tItem): ?>
+                                                    <li><?php echo htmlspecialchars((string)$tItem, ENT_QUOTES, "UTF-8"); ?></li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        <?php endif; ?>
+                                    </div>
+                                </details>
+
                             </div>
 
                             <div class="card_bottom">

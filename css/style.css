@@ -206,6 +206,78 @@ select option {
     font-weight: bold;
 }
 
+/* カード下部ー作物・病害虫一覧
+------------------------------- */
+.card_lists {
+    margin-top: 10px;
+    border-top: 1px dashed #e5effb;
+    padding-top: 10px;
+    display: grid;
+    gap: 8px;
+}
+
+.card_detail {
+    background: #f8fbff;
+    border: 1px solid #d7e6f7;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.card_detail summary {
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 12px;
+    color: #1f6feb;
+    padding: 10px 12px;
+    list-style: none; /* デフォルト三角を消す（Chrome系） */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.card_detail summary::-webkit-details-marker {
+    display: none; /* Safari/Chrome */
+}
+
+/* 右側に▼アイコンっぽいものを付ける */
+.card_detail summary::after {
+    content: "▼";
+    font-size: 10px;
+    color: #4a6075;
+    transition: transform 0.15s ease;
+}
+
+.card_detail[open] summary::after {
+    transform: rotate(180deg);
+}
+
+.card_detail .detail_body {
+    padding: 10px 12px 12px;
+    background: #ffffff;
+    border-top: 1px solid #e5effb;
+}
+
+.card_detail p {
+    margin: 0;
+    font-size: 12px;
+    color: #4a6075;
+}
+
+.card_detail ul {
+    margin: 0;
+    padding-left: 18px;
+    display: grid;
+    gap: 4px;
+}
+
+.card_detail li {
+    margin: 0;
+    font-size: 12px;
+    color: #102030;
+    line-height: 1.35;
+}
+
 /* カード下部ー価格、ボタン
 ------------------------------- */
 .card_bottom {
