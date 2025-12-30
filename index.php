@@ -6,17 +6,25 @@ error_reporting(E_ALL);
 
 require_once __DIR__ . "/db.php";
 
-//確認用、あとで消す
-$stmt = $pdo->query("SELECT COUNT(*) AS cnt FROM pesticides_base");
-$row = $stmt->fetch();
-$baseCount = (int)($row["cnt"] ?? 0);
-
 // =============================================
-// 作物・病害虫プルダウン
+// 作物・病害虫・使用方法プルダウン
 // =============================================
 $category = $_GET["category"] ?? "殺虫剤";
 $crop = trim($_GET["crop"] ?? "");
 $target = trim($_GET["target"] ?? "");
+$method = trim($_GET["method"] ?? "散布");
+$methodGroups = [
+    "散布" => ["散布"],
+    "全面土壌散布" => ["全面土壌散布"],
+    "常温煙霧" => ["常温煙霧"],
+    "灌注" => ["灌注", "株元灌注", "灌水ﾁｭｰﾌﾞを用いた灌注処理", "苗床灌注"],
+    "浸漬" => ["120分間鱗片浸漬", "30分間種球浸漬", "30分間苗浸漬"],
+    "ドローン散布" => ["無人航空機による散布"],
+    "その他" => ["主幹から株元に散布", "主幹部に吹きつけ", "散布､但し花穂の発生期にはﾏﾙﾁﾌｨﾙﾑ被覆により散布液が直接花穂に飛散しない状態で使用する｡",
+        "木屑排出孔を中心に薬液が滴るまで樹幹注入", "本剤1g当り水1mLの割合で混合し､主幹から主枝の粗皮を環状に剥いだ部分に塗布する｡",
+        "植溝内土壌散布", "樹幹散布", "添加"]
+];
+$methodLabels = ["散布", "灌注", "ドローン散布", "全面土壌散布", "常温煙霧", "浸漬", "その他"];
 
 //作物プルダウン
 $stmt = $pdo->prepare(
@@ -40,8 +48,18 @@ $targetOptions = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
 
 // =============================================
-// DBから検索結果取得、作物・病害虫絞り込み処理
+// DBから検索結果取得、作物・病害虫・使用方法絞り込み処理
 // =============================================
+$selectedMethods = $methodGroups[$method];
+$in = [];
+$methodParams = [];
+foreach ($selectedMethods as $i => $m) {
+    $key = ":m{$i}";
+    $in[] = $key;
+    $methodParams[$key] = $m;
+}
+$methodSql = " AND r.method IN (" . implode(",", $in) . ")";
+
 $sql = "SELECT r.*, b.shopify_id
     FROM pesticides_rules AS r
     LEFT JOIN pesticides_base AS b
@@ -50,6 +68,7 @@ $sql = "SELECT r.*, b.shopify_id
         r.category = :category
         AND (:crop1 = '' OR r.crop = :crop2)
         AND (:target1 = '' OR r.target = :target2)
+        {$methodSql}
     ORDER BY r.name ASC";
 
 $stmt = $pdo->prepare($sql);
@@ -59,7 +78,7 @@ $stmt->execute([
     ":crop2" => $crop,
     ":target1" => $target,
     ":target2" => $target,
-]);
+] + $methodParams);
 
 $filtered = $stmt->fetchAll();
 $count = count($filtered);
@@ -80,8 +99,6 @@ $count = count($filtered);
         <h1>カケトコ mini</h1>
         <a href="./admin/admin.php" class="admin_link">管理画面へ</a>
     </header>
-
-    <p>DB接続完了 / pesticides_base 件数: <?php echo $baseCount; ?></p>
 
     <main class="app_main">
         <section class="search_section">
@@ -108,7 +125,8 @@ $count = count($filtered);
                             <option value="<?php echo htmlspecialchars($c, ENT_QUOTES, "UTF-8"); ?>"
                                 <?php 
                                 // selectedがあると検索ボタン押しても選択状態になる
-                                echo($crop === $c) ? "selected" : ""; ?>>
+                                echo($crop === $c) ? "selected" : ""; ?>
+                            >
                                 <?php 
                                 //<option>トマト</option>のトマトの部分
                                 echo htmlspecialchars($c, ENT_QUOTES, "UTF-8"); ?>
@@ -121,10 +139,26 @@ $count = count($filtered);
                     <label for="target">病害虫</label>
                     <select name="target" id="target">
                         <option value="">指定なし</option>
+                        <!-- 病害虫プルダウン -->
                         <?php foreach ($targetOptions as $t): ?>
                             <option value="<?php echo htmlspecialchars($t, ENT_QUOTES, "UTF-8"); ?>"
-                                <?php echo($target === $t) ? "selected" : ""; ?>>
+                                <?php echo($target === $t) ? "selected" : ""; ?>
+                            >
                                 <?php echo htmlspecialchars($t, ENT_QUOTES, "UTF-8"); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="form_row">
+                    <!-- 使用方法プルダウン、デフォルトは"散布" -->
+                    <label for="method">使用方法</label>
+                    <select name="method" id="method">
+                        <?php foreach ($methodLabels as $m): ?>
+                            <option value="<?php echo htmlspecialchars($m, ENT_QUOTES, "UTF-8"); ?>"
+                                <?php echo ($method === $m) ? "selected" : ""; ?>
+                            >
+                                <?php echo htmlspecialchars($m, ENT_QUOTES, "UTF-8"); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -184,7 +218,7 @@ $count = count($filtered);
                                         <span class="spec_val">
                                             <?php
                                                 echo isset($p["magnification"])
-                                                    ? htmlspecialchars((string)$p["magnification"], ENT_QUOTES, "UTF-8") . "倍" : "";
+                                                    ? htmlspecialchars((string)$p["magnification"], ENT_QUOTES, "UTF-8") : "";
                                             ?>
                                         </span>
                                     </div>
@@ -193,7 +227,7 @@ $count = count($filtered);
                                         <span class="spec_val">
                                             <?php
                                                 echo isset($p["times"])
-                                                    ? htmlspecialchars((string)$p["times"], ENT_QUOTES, "UTF-8") . "回" : ""; 
+                                                    ? htmlspecialchars((string)$p["times"], ENT_QUOTES, "UTF-8") : ""; 
                                             ?>
                                         </span>
                                     </div>
@@ -202,7 +236,7 @@ $count = count($filtered);
                                         <span class="spec_val">
                                             <?php
                                                 echo isset($p["timing"])
-                                                    ? htmlspecialchars((string)$p["timing"], ENT_QUOTES, "UTF-8") . "日前まで" : "";
+                                                    ? htmlspecialchars((string)$p["timing"], ENT_QUOTES, "UTF-8") : "";
                                             ?>
                                         </span>
                                     </div>
