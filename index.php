@@ -58,17 +58,25 @@ foreach ($selectedMethods as $i => $m) {
     $in[] = $key;
     $methodParams[$key] = $m;
 }
-$methodSql = " AND r.method IN (" . implode(",", $in) . ")";
+$methodInSql = implode(",", $in);
 
 $sql = "SELECT r.*, b.shopify_id
-    FROM pesticides_rules AS r
+    FROM (
+        SELECT 
+            registration_number,
+            MIN(id) AS pick_id
+        FROM pesticides_rules
+        WHERE 
+            category = :category
+            AND (:crop1 = '' OR crop = :crop2)
+            AND (:target1 = '' OR target = :target2)
+            AND method IN ($methodInSql)
+        GROUP BY registration_number
+    ) AS picked
+    JOIN pesticides_rules AS r
+        ON r.id = picked.pick_id
     LEFT JOIN pesticides_base AS b
         ON b.registration_number = r.registration_number
-    WHERE
-        r.category = :category
-        AND (:crop1 = '' OR r.crop = :crop2)
-        AND (:target1 = '' OR r.target = :target2)
-        {$methodSql}
     ORDER BY r.name ASC";
 
 $stmt = $pdo->prepare($sql);
@@ -249,7 +257,7 @@ $count = count($filtered);
                                             <?php echo htmlspecialchars((string)$p["method"] ?? "", ENT_QUOTES, "UTF-8");?>
                                         </span>
                                     </div>
-                                    
+
                                     <div class="spec_row">
                                         <span class="spec_label">カケトコスコア</span>
                                         <span class="spec_val">
