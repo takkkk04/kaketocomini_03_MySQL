@@ -222,6 +222,7 @@ $count = count($filtered);
                                             ?>
                                         </span>
                                     </div>
+
                                     <div class="spec_row">
                                         <span class="spec_label">使用回数</span>
                                         <span class="spec_val">
@@ -231,6 +232,7 @@ $count = count($filtered);
                                             ?>
                                         </span>
                                     </div>
+
                                     <div class="spec_row">
                                         <span class="spec_label">収穫前日数</span>
                                         <span class="spec_val">
@@ -240,9 +242,19 @@ $count = count($filtered);
                                             ?>
                                         </span>
                                     </div>
+
+                                    <div class="spec_row">
+                                        <span class="spec_label">使用方法</span>
+                                        <span class="spec_val">
+                                            <?php echo htmlspecialchars((string)$p["method"] ?? "", ENT_QUOTES, "UTF-8");?>
+                                        </span>
+                                    </div>
+                                    
                                     <div class="spec_row">
                                         <span class="spec_label">カケトコスコア</span>
-                                        <span class="spec_val"><?php echo htmlspecialchars((string)($p["score"] ?? ""), ENT_QUOTES, "UTF-8"); ?></span>
+                                        <span class="spec_val">
+                                            <?php echo htmlspecialchars((string)($p["score"] ?? ""), ENT_QUOTES, "UTF-8"); ?>
+                                        </span>
                                     </div>
                                 </div>
                             </div>
