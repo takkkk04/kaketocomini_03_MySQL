@@ -146,11 +146,31 @@ $targetListStmt = $pdo->prepare(
             <form id="search_form" method="GET" action="">
                 <div class="form_row">
                     <label for="category">カテゴリ</label>
-                    <select name="category" id="category">
-                        <option value="殺虫剤">殺虫剤</option>
-                        <option value="殺菌剤">殺菌剤</option>
-                        <option value="除草剤">除草剤</option>
-                    </select>
+                        <div class="category_picker" role="radiogroup" aria-label="カテゴリ">
+                            <label class="cat_item">
+                                <input type="radio" name="category" value="殺虫剤" <?php echo ($category === "殺虫剤") ? "checked" : ""; ?>>
+                                <span class="cat_btn">
+                                    <img src="image/icon_butterfly.png" alt="">
+                                    <span class="cat_text">殺虫剤</span>
+                                </span>
+                            </label>
+
+                            <label class="cat_item">
+                                <input type="radio" name="category" value="殺菌剤" <?php echo ($category === "殺菌剤") ? "checked" : ""; ?>>
+                                <span class="cat_btn">
+                                    <img src="image/icon_virus.png" alt="">
+                                    <span class="cat_text">殺菌剤</span>
+                                </span>
+                            </label>
+
+                            <label class="cat_item">
+                                <input type="radio" name="category" value="除草剤" <?php echo ($category === "除草剤") ? "checked" : ""; ?>>
+                                <span class="cat_btn">
+                                    <img src="image/icon_leaf.png" alt="">
+                                    <span class="cat_text">除草剤</span>
+                                </span>
+                            </label>
+                        </div>
                 </div>
 
                 <div class="form_row">
