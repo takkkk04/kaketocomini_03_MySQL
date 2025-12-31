@@ -229,7 +229,7 @@ $targetListStmt = $pdo->prepare(
 
                 <div class="form_row">
                     <label for="target">病害虫</label>
-                    <select name="target" id="target">
+                    <select name="target" id="target" class="js-select2">
                         <option value="">指定なし</option>
                         <!-- 病害虫プルダウン -->
                         <?php foreach ($targetOptions as $t): ?>
@@ -243,17 +243,21 @@ $targetListStmt = $pdo->prepare(
                 </div>
 
                 <div class="form_row">
-                    <!-- 使用方法プルダウン、デフォルトは"散布" -->
+                    <!-- 使用方法ラジオボタン、デフォルトは"散布" -->
                     <label for="method">使用方法</label>
-                    <select name="method" id="method">
+                    <div class="method_picker" role="radiogroup" aria-label="使用方法">
                         <?php foreach ($methodLabels as $m): ?>
-                            <option value="<?php echo htmlspecialchars($m, ENT_QUOTES, "UTF-8"); ?>"
-                                <?php echo ($method === $m) ? "selected" : ""; ?>
-                            >
-                                <?php echo htmlspecialchars($m, ENT_QUOTES, "UTF-8"); ?>
-                            </option>
+                            <label class="method_item">
+                                <input type="radio" name="method" 
+                                    value="<?php echo htmlspecialchars($m, ENT_QUOTES, "UTF-8"); ?>"
+                                    <?php echo ($method === $m) ? "checked" : ""; ?>
+                                >
+                                <span class="method_btn">
+                                    <?php echo htmlspecialchars($m, ENT_QUOTES, "UTF-8"); ?>
+                                </span>
+                            </label>
                         <?php endforeach; ?>
-                    </select>
+                    </div>
                 </div>
 
                 <div class="form_row_btn">

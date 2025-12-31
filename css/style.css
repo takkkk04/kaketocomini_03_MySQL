@@ -214,6 +214,8 @@ body {
     transform: translateY(1px);
 }
 
+/* 検索プルダウン以下
+------------------------------- */
 select {
     width: 100%;
     padding: 8px;
@@ -249,6 +251,169 @@ select option {
 
 #reset_btn {
     background: #ffffff;
+}
+
+/* =========================================================
+    Select2プルダウン
+   ========================================================= */
+/* コンテナは必ず100% */
+.select2-container {
+    width: 100% !important;
+    box-sizing: border-box;
+}
+
+/* form内でのズレ防止（inline-block由来の謎余白対策） */
+.form_row .select2-container {
+    display: block;
+}
+
+/* 本体（selectの枠） */
+.select2-container--default .select2-selection--single {
+    box-sizing: border-box;
+    height: 40px;
+    /* selectと高さを合わせる */
+    border: 1px solid #d7e6f7;
+    border-radius: 8px;
+    background: #ffffff;
+
+    /* 中の文字を縦中央に */
+    display: flex;
+    align-items: center;
+
+    /* 左右の余白（selectのpadding感） */
+    padding: 0 8px;
+}
+
+/* 選択中テキスト（デフォのpadding/line-heightがズレ原因になりがち） */
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    padding: 0;
+    margin: 0;
+    line-height: 1.4;
+    font-size: 14px;
+    color: #102030;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 右の▼（arrow） */
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 40px;
+    top: 0;
+    right: 6px;
+    width: 20px;
+}
+
+/* クリアボタンを使う場合の位置（使ってなければ害なし） */
+.select2-container--default .select2-selection--single .select2-selection__clear {
+    height: 40px;
+    line-height: 40px;
+    margin-right: 6px;
+}
+
+/* ドロップダウン枠（一覧の枠） */
+.select2-container--default .select2-dropdown {
+    border: 1px solid #d7e6f7;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* 検索入力（ドロップダウン上部） */
+.select2-container--default .select2-search--dropdown {
+    padding: 8px;
+    border-bottom: 1px solid #e5effb;
+    background: #ffffff;
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #d7e6f7;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field:focus {
+    border-color: #1f6feb;
+}
+
+/* 一覧の項目 */
+.select2-container--default .select2-results__option {
+    font-size: 14px;
+    padding: 10px 12px;
+}
+
+/* hover */
+.select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+    background: #e6f2ff;
+    color: #102030;
+}
+
+/* 選択中 */
+.select2-container--default .select2-results__option--selected {
+    background: #f4f9ff;
+}
+
+/* 無効化時 */
+.select2-container--default.select2-container--disabled .select2-selection--single {
+    background: #f8fbff;
+    color: #8aa0b7;
+}
+
+/* 余白ズレが出る環境対策（保険） */
+.select2-container * {
+    box-sizing: border-box;
+}
+
+/* 使用方法ラジオボタン
+======================================== */
+.method_picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.method_item {
+    position: relative;
+}
+
+.method_item input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.method_btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 10px 14px;
+    border-radius: 999px; /* ← カテゴリとの差別化ポイント */
+    border: 1px solid #d7e6f7;
+    background: #f8fbff;
+    cursor: pointer;
+
+    font-weight: 700;
+    font-size: 13px;
+    color: #102030;
+    white-space: nowrap;
+
+    transition: transform .05s ease, box-shadow .12s ease, border-color .12s ease;
+}
+
+/* 選択中（カテゴリと同トーン） */
+.method_item input:checked + .method_btn {
+    background: #e6f2ff;
+    border-color: #1f6feb;
+    box-shadow: 0 8px 18px rgba(31, 111, 235, 0.18);
+}
+
+/* 押下感 */
+.method_item .method_btn:active {
+    transform: translateY(1px);
 }
 
 /* ========================================
