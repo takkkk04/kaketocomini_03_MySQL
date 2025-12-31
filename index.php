@@ -6,9 +6,11 @@ error_reporting(E_ALL);
 
 require_once __DIR__ . "/db.php";
 
+// +++++++++++++++++++++++++++++++++++++++++++++
 // =============================================
 // 作物・病害虫・使用方法プルダウン
 // =============================================
+// +++++++++++++++++++++++++++++++++++++++++++++
 $category = $_GET["category"] ?? "殺虫剤";
 $crop = trim($_GET["crop"] ?? "");
 $target = trim($_GET["target"] ?? "");
@@ -26,17 +28,37 @@ $methodGroups = [
 ];
 $methodLabels = ["散布", "灌注", "ドローン散布", "全面土壌散布", "常温煙霧", "浸漬", "その他"];
 
-//作物プルダウン
-$stmt = $pdo->prepare(
-    "SELECT DISTINCT crop 
-    FROM pesticides_rules 
-    WHERE category = :category AND crop <> '' 
-    ORDER BY crop ASC
-    ");
-$stmt->execute([":category" => $category]);
-$cropOptions = $stmt->fetchAll(PDO::FETCH_COLUMN);
+//作物プルダウン（DB自動取得ver）
+// $stmt = $pdo->prepare(
+//     "SELECT DISTINCT crop 
+//     FROM pesticides_rules 
+//     WHERE category = :category AND crop <> '' 
+//     ORDER BY crop ASC
+//     ");
+// $stmt->execute([":category" => $category]);
+// $cropOptions = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-//病害虫プルダウン
+// =============================================
+// ザックリ検索,作物プルダウン
+// =============================================
+//ザックリ作物決め打ちプルダウン
+$quickCropLabels = [
+    "アスパラガス","いちご","えだまめ","おうとう","オクラ","かき","かぶ","かぼちゃ","カリフラワー",
+    "かんきつ","かんしょ","きく","キャベツ","きゅうり","ごぼう","こまつな","さといも",
+    "さやいんげん","さやえんどう","ししとう","しそ","しゅんぎく","しょうが","すいか","ズッキーニ",
+    "セルリー","だいこん","だいず","たまねぎ","てんさい","とうがらし類","トマト","なし","なす",
+    "にがうり","にら","にんじん","にんにく","ねぎ","はくさい","ばれいしょ","ピーマン","ぶどう",
+    "ブロッコリー","ほうれんそう","ミニトマト","メロン","もも","やまのいも","りんご","レタス",
+    "未成熟とうもろこし","茶","野菜類","非結球あぶらな科葉菜類","非結球レタス",
+];
+
+$cropOptions = [];
+foreach ($quickCropLabels as $label) {
+    $dbValue = mb_convert_kana($label, "k", "UTF-8"); //カタカナ半角化
+    $cropOptions[$label] = $dbValue;
+}
+
+//病害虫プルダウン(DB自動取得)
 $stmt = $pdo->prepare(
     "SELECT DISTINCT target 
     FROM pesticides_rules 
@@ -46,10 +68,16 @@ $stmt = $pdo->prepare(
 $stmt->execute([":category" => $category]);
 $targetOptions = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
+// +++++++++++++++++++++++++++++++++++++++++++++
+// =============================================
+// DBから検索結果カード情報取得
+// =============================================
+// +++++++++++++++++++++++++++++++++++++++++++++
 
 // =============================================
-// DBから検索結果取得、作物・病害虫・使用方法絞り込み処理
+// 作物・病害虫・使用方法絞り込み処理
 // =============================================
+//まず使用方法で絞る
 $selectedMethods = $methodGroups[$method];
 $in = [];
 $methodParams = [];
@@ -60,6 +88,7 @@ foreach ($selectedMethods as $i => $m) {
 }
 $methodInSql = implode(",", $in);
 
+//カード内情報取得
 $sql = "SELECT r.*, b.shopify_id
     FROM (
         SELECT 
@@ -91,7 +120,9 @@ $stmt->execute([
 $filtered = $stmt->fetchAll();
 $count = count($filtered);
 
-//作物、病害虫一覧取得
+// =============================================
+// カード内作物、病害虫一覧取得
+// =============================================
 $cropListStmt = $pdo->prepare(
     "SELECT DISTINCT crop
     FROM pesticides_rules
@@ -178,17 +209,18 @@ $targetListStmt = $pdo->prepare(
                     <select name="crop" id="crop">
                         <option value="">指定なし</option>
                         <!-- 作物名プルダウン -->
-                        <?php foreach ($cropOptions as $c): ?>
+                        <!-- カタカナ全角→半角処理 -->
+                        <?php foreach ($cropOptions as $label =>$dbValue): ?> 
                             <!-- <select>のプルダウンの中身<option>をHTMLで作っている -->
                             <!-- htmlspecialchars()は安全装置,記号とかをエスケープする -->
-                            <option value="<?php echo htmlspecialchars($c, ENT_QUOTES, "UTF-8"); ?>"
+                            <option value="<?php echo htmlspecialchars($dbValue, ENT_QUOTES, "UTF-8"); ?>"
                                 <?php 
                                 // selectedがあると検索ボタン押しても選択状態になる
-                                echo($crop === $c) ? "selected" : ""; ?>
+                                echo($crop === $dbValue) ? "selected" : ""; ?>
                             >
                                 <?php 
                                 //<option>トマト</option>のトマトの部分
-                                echo htmlspecialchars($c, ENT_QUOTES, "UTF-8"); ?>
+                                echo htmlspecialchars($label, ENT_QUOTES, "UTF-8"); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
