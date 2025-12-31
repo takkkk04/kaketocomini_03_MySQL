@@ -151,6 +151,8 @@ $targetListStmt = $pdo->prepare(
     <title>カケトコ_mini</title>
     <link rel="stylesheet" href="./css/reset.css">
     <link rel="stylesheet" href="./css/style.css">
+    <!-- Select2 プルダウン内検索 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 </head>
 <body>
     <header class="app_header">
@@ -172,7 +174,7 @@ $targetListStmt = $pdo->prepare(
 
     <main class="app_main">
         <section class="search_section">
-            <h2>検索条件</h2>
+            <h2>ザックリ検索</h2>
 
             <form id="search_form" method="GET" action="">
                 <div class="form_row">
@@ -206,7 +208,8 @@ $targetListStmt = $pdo->prepare(
 
                 <div class="form_row">
                     <label for="crop">作物名</label>
-                    <select name="crop" id="crop">
+                    <!-- キーワード検索 Select2(プルダウン内検索)-->
+                    <select name="crop" id="crop" class="js-select2">
                         <option value="">指定なし</option>
                         <!-- 作物名プルダウン -->
                         <!-- カタカナ全角→半角処理 -->
@@ -216,11 +219,9 @@ $targetListStmt = $pdo->prepare(
                             <option value="<?php echo htmlspecialchars($dbValue, ENT_QUOTES, "UTF-8"); ?>"
                                 <?php 
                                 // selectedがあると検索ボタン押しても選択状態になる
-                                echo($crop === $dbValue) ? "selected" : ""; ?>
-                            >
-                                <?php 
-                                //<option>トマト</option>のトマトの部分
-                                echo htmlspecialchars($label, ENT_QUOTES, "UTF-8"); ?>
+                                echo($crop === $dbValue) ? "selected" : ""; ?>>
+                                <!-- <option>トマト</option>のトマトの部分 -->
+                                <?php echo htmlspecialchars($label, ENT_QUOTES, "UTF-8"); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -404,6 +405,8 @@ $targetListStmt = $pdo->prepare(
     
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Select2 プルダウン内検索 -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script type="module" src="shopify.js"></script>
     <script src="app.js"></script>
 </body>
