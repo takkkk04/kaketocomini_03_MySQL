@@ -470,7 +470,9 @@ function buildBadges(array $row, array $defs) : array {
 
                             <div class="card_bottom">
                                 <div class="shopify_price"></div>
+                                <div class="shopify_variant"></div>
                                 <div class="shopify_btn"></div>
+                                <div class="shopify_mount" style="display: none;"></div>
                             </div>
                         </article>
                     <?php endforeach; ?>
