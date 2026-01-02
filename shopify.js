@@ -78,44 +78,6 @@ async function prepareShopifyUI() {
 // =============================================
 // 商品画像、価格、ボタンをHTMLにマウントする（送る）関数
 // =============================================
-// 生成DOMから “価格/規格/ボタン” を取り出して配置する
-function extractAndPlace(card) {
-    const mountNode = card.querySelector(".shopify_mount");
-    const priceHost = card.querySelector(".shopify_price");
-    const variantHost = card.querySelector(".shopify_variant");
-    const btnHost = card.querySelector(".shopify_btn");
-
-    // BuyButtonが作る product ルート
-    const root = mountNode?.querySelector(".shopify-buy__product");
-    if (!root) return false;
-
-    // 価格（classは安定）
-    const price = root.querySelector(".shopify-buy__product__price");
-
-    // 購入ボタン（classは安定）
-    const btn = root.querySelector(".shopify-buy__btn");
-
-    // 規格（select）：
-    const select = root.querySelector("select");
-
-    if (priceHost) {
-        priceHost.innerHTML = "";
-        if (price) priceHost.appendChild(price);
-    }
-
-    if (variantHost) {
-        variantHost.innerHTML = "";
-        if (select) variantHost.appendChild(select);
-    }
-
-    if (btnHost) {
-        btnHost.innerHTML = "";
-        if (btn) btnHost.appendChild(btn);
-    }
-
-    return true;
-}
-
 async function mountAllShopify() {
     const ui = await prepareShopifyUI();
 
@@ -169,13 +131,6 @@ async function mountAllShopify() {
                 },
             },
         });
-
-        // ③ DOMが生成されるまで待ってから移設
-        const timer = setInterval(() => {
-            if (extractAndPlace(card)) clearInterval(timer);
-        }, 50);
-
-        setTimeout(() => clearInterval(timer), 5000);
     });
 }
 

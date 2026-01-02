@@ -675,61 +675,84 @@ select option {
 
 /* カード下部ー価格、ボタン
 ------------------------------- */
+/* カード下部ー価格、規格、ボタン（shopify_mount 直描画版）
+------------------------------- */
 .card_bottom {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    margin-top: 12px;
-    padding-top: 10px;
-    border-top: 1px dashed #e5effb;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed #e5effb;
 }
 
-.shopify_price {
-    flex: 1;
+/* mount全体は横幅100% */
+.shopify_mount {
+  width: 100%;
 }
 
-.shopify_price .shopify-buy__product__actual-price {
-    margin: 0;
-    font-weight: bold;
-    font-size: 14px;
-    color: red;
+/* Shopifyが吐く product ルートを、以前の card_bottom と同じレイアウトにする */
+.shopify_mount .shopify-buy__product {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 価格ブロック（左） */
+.shopify_mount .shopify-buy__product__price {
+  flex: 1;
+  margin: 0;
+}
+
+/* 実価格（赤）＝以前の .shopify_price と同じ見た目 */
+.shopify_mount .shopify-buy__product__actual-price {
+  margin: 0;
+  font-weight: bold;
+  font-size: 14px;
+  color: red;
 }
 
 /* Shopifyが入れてくるRegular Priceの表示を削除 */
-.visuallyhidden {
-    display: none !important;
+.shopify_mount .visuallyhidden {
+  display: none !important;
 }
 
 /* 価格の後に（税込）を追加 */
-.shopify-buy__product__actual-price::after {
-    content: "（税込）";
-    font-size: 12px;
-    margin-left: 4px;
-    color: #4a6075;
-    font-weight: normal;
+.shopify_mount .shopify-buy__product__actual-price::after {
+  content: "（税込）";
+  font-size: 12px;
+  margin-left: 4px;
+  color: #4a6075;
+  font-weight: normal;
 }
 
-.shopify_btn {
-    width: 160px;
+/* 規格（select）＝以前の select と同じ雰囲気に寄せる */
+.shopify_mount select {
+  width: 140px;              /* ここで“規格があるとき”の崩れを止める */
+  padding: 8px;
+  border: 1px solid #d7e6f7;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #ffffff;
 }
 
-.shopify-buy__btn {
-    background: #ff9f43 !important;
-    border-color: #ff9f43 !important;
-    color: #ffffff !important;
-    border-radius: 10px !important;
-    font-weight: bold !important;
+/* 右側ボタン枠（以前の .shopify_btn { width:160px; } 相当） */
+.shopify_mount .shopify-buy__btn {
+  width: 160px;
+  margin: 0 !important;
+  background: #ff9f43 !important;
+  border-color: #ff9f43 !important;
+  color: #ffffff !important;
+  border-radius: 10px !important;
+  font-weight: bold !important;
 }
 
-.shopify-buy__btn:hover {
-    background: #ff8f1f !important;
-    border-color: #ff7f24 !important;
+.shopify_mount .shopify-buy__btn:hover {
+  background: #ff8f1f !important;
+  border-color: #ff7f24 !important;
 }
 
-.shopify_btn .shopify-buy__btn {
-    width: 100%;
-    margin: 0;
+/* Shopifyの規格selectの▼（SVG）がデカくなる問題を潰す */
+.shopify_mount .shopify-buy__select-icon {
+  display: none !important;
 }
 
 /* ========================================
