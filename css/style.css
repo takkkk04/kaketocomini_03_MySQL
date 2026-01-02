@@ -567,6 +567,13 @@ select option {
     border-color:#1f6feb;
 }
 
+.badge_quickly {
+    background: #fff1f1;
+    border-color: #f3c2c2;
+    color: #c53030;
+}
+
+
 /* カード下部ー作物・病害虫一覧
 ------------------------------- */
 .card_lists {

@@ -93,6 +93,7 @@ $sql =
     "SELECT 
         r.*, 
         b.shopify_id,
+        b.quickly,
         b.systemic,
         b.translaminar
     FROM (
@@ -157,17 +158,35 @@ $BADGE_DEFS = [
     ["key" => "translaminar",
     "label" => "浸達性",
     "class" => "badge_translaminar"],
+
+    ["key" => "quickly",
+    "label" => "速効性",
+    "class" => "badge_quickly",
+    "min" => "4"], //速効性４以上を指定する
 ];
 
+//0→表示なし、1→表示あり、min指定あるならmin以上表示
 function buildBadges(array $row, array $defs) : array {
     $out = [];
     foreach ($defs as $def) {
         $key = $def["key"];
-        if (!empty($row[$key])) {
+
+        if (!isset($row[$key])) {
+            continue;
+        }
+
+        if (isset($def["min"])) {
+            if ((int)$row[$key] < $def["min"]) {
+                continue;
+            }
+        } else {
+            if (empty($row[$key])) {
+                continue;
+            }
+        }   
             $out[] = $def;
         }
-    }
-    return $out;
+        return $out;
 }
 
 ?>
@@ -329,9 +348,9 @@ function buildBadges(array $row, array $defs) : array {
                             $cropList = $cropListStmt->fetchAll(PDO::FETCH_COLUMN);
                             $targetListStmt->execute([":reg" => $reg, ":category" => $category]);
                             $targetList = $targetListStmt->fetchAll(PDO::FETCH_COLUMN);
-                            //カード内バッジ 浸透移行性、浸達性
+                            //カード内バッジ 浸透移行性、浸達性、速効性
                             $badges = buildBadges($p, $BADGE_DEFS);
-                            ?>
+                        ?>
                             
                         <article class="result_card">
                             <div class="card_title">
