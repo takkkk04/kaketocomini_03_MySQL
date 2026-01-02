@@ -397,7 +397,8 @@ select option {
     justify-content: center;
 
     padding: 10px 14px;
-    border-radius: 999px; /* ← カテゴリとの差別化ポイント */
+    border-radius: 999px;
+    /* ← カテゴリとの差別化ポイント */
     border: 1px solid #d7e6f7;
     background: #f8fbff;
     cursor: pointer;
@@ -411,7 +412,7 @@ select option {
 }
 
 /* 選択中（カテゴリと同トーン） */
-.method_item input:checked + .method_btn {
+.method_item input:checked+.method_btn {
     background: #e6f2ff;
     border-color: #1f6feb;
     box-shadow: 0 8px 18px rgba(31, 111, 235, 0.18);
@@ -498,7 +499,7 @@ select option {
     padding: 4px 10px;
     border-radius: 999px;
     border: 1px solid #d0d7de;
-    color: #6b7280; 
+    color: #6b7280;
     background: #fff;
     font-size: 12px;
     font-weight: 500;
@@ -561,35 +562,35 @@ select option {
 }
 
 /* 特徴バッジ */
-.badge_row{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    margin-top:10px;
+.badge_row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
 }
 
-.badge{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    padding:6px 10px;
-    border-radius:999px;
-    border:1px solid #d7e6f7;
-    background:#f8fbff;
-    font-size:11px;
+.badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid #d7e6f7;
+    background: #f8fbff;
+    font-size: 11px;
     font-weight: 500;
-    color:#102030;
-    white-space:nowrap;
+    color: #102030;
+    white-space: nowrap;
 }
 
-.badge_systemic{
-    background:#e6f2ff;
-    border-color:#1f6feb;
+.badge_systemic {
+    background: #e6f2ff;
+    border-color: #1f6feb;
 }
 
-.badge_translaminar{
-    background:#e6f2ff;
-    border-color:#1f6feb;
+.badge_translaminar {
+    background: #e6f2ff;
+    border-color: #1f6feb;
 }
 
 .badge_quickly {
@@ -680,121 +681,121 @@ select option {
 ======================================= */
 
 .card_bottom {
-  margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px dashed #e5effb;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed #e5effb;
 }
 
 /* Shopify product ルートをGrid化 */
 .card_bottom .shopify_mount .shopify-buy__product {
-  display: grid;
-  grid-template-columns: 1fr 160px;
-  grid-template-rows: auto auto;
-  column-gap: 10px;
-  row-gap: 6px;
-  align-items: center;
+    display: grid;
+    grid-template-columns: 1fr 160px;
+    grid-template-rows: auto auto;
+    column-gap: 10px;
+    row-gap: 6px;
+    align-items: center;
 
-  margin: 0;
-  padding: 0;
+    margin: 0;
+    padding: 0;
 }
 
 /* =====================
 規格（select）
 ===================== */
 .card_bottom .shopify-buy__product__variant-selectors {
-  grid-column: 1;
-  grid-row: 1;
-  margin: 0;
-  padding: 0;
+    grid-column: 1;
+    grid-row: 1;
+    margin: 0;
+    padding: 0;
 }
 
 .card_bottom .shopify-buy__option-select-wrapper {
-  margin: 0;
-  padding: 0;
+    margin: 0;
+    padding: 0;
 }
 
 .card_bottom .shopify-buy__option-select__label {
-  display: none;
+    display: none;
 }
 
 .card_bottom .shopify-buy__option-select__select {
-  width: 100%;
-  box-sizing: border-box;
+    width: 100%;
+    box-sizing: border-box;
 
-  padding: 8px;
-  border: 1px solid #d7e6f7;
-  border-radius: 12px;
-  background: #ffffff;
+    padding: 8px;
+    border: 1px solid #d7e6f7;
+    border-radius: 12px;
+    background: #ffffff;
 
-  font-size: 16px;
-  font-weight: 500;
-  color: #102030;
+    font-size: 16px;
+    font-weight: 500;
+    color: #102030;
 
-  appearance: none;
-  -webkit-appearance: none;
+    appearance: none;
+    -webkit-appearance: none;
 }
 
 /* ShopifyのデカいV（SVG）を消す */
 .card_bottom .shopify-buy__select-icon {
-  display: none;
+    display: none;
 }
 
 /* =====================
 価格
 ===================== */
 .card_bottom .shopify-buy__product__price {
-  grid-column: 1;
-  grid-row: 2;
-  margin: 0;
-  padding-left: 12px;
+    grid-column: 1;
+    grid-row: 2;
+    margin: 0;
+    padding-left: 12px;
 }
 
 .card_bottom .visuallyhidden {
-  display: none;
+    display: none;
 }
 
 .card_bottom .shopify-buy__product__actual-price {
-  font-weight: bold;
-  font-size: 14px;
-  color: red;
+    font-weight: bold;
+    font-size: 14px;
+    color: red;
 }
 
 .card_bottom .shopify-buy__product__actual-price::after {
-  content: "（税込）";
-  margin-left: 4px;
-  font-size: 12px;
-  color: #4a6075;
-  font-weight: normal;
+    content: "（税込）";
+    margin-left: 4px;
+    font-size: 12px;
+    color: #4a6075;
+    font-weight: normal;
 }
 
 /* =====================
 購入ボタン
 ===================== */
 .card_bottom .shopify-buy__btn-wrapper {
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  width: 160px;
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    width: 160px;
 
-  margin: 0;
-  padding: 0;
+    margin: 0;
+    padding: 0;
 }
 
 .card_bottom .shopify-buy__btn {
-  width: 100%;
-  padding: 8px;
+    width: 100%;
+    padding: 8px;
 
-  background: #ff9f43;
-  border: 1px solid #ff9f43;
-  border-radius: 10px;
+    background: #ff9f43;
+    border: 1px solid #ff9f43;
+    border-radius: 10px;
 
-  color: #ffffff;
-  font-weight: bold;
-  line-height: 1;
+    color: #ffffff;
+    font-weight: bold;
+    line-height: 1;
 }
 
 .card_bottom .shopify-buy__btn:hover {
-  background: #ff8f1f;
-  border-color: #ff7f24;
+    background: #ff8f1f;
+    border-color: #ff7f24;
 }
 
 /* ========================================
