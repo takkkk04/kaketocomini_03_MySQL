@@ -798,16 +798,6 @@ select option {
 }
 
 /* =====================
-規格が無い商品
-===================== */
-.card_bottom
-  .shopify-buy__product:not(:has(.shopify-buy__product__variant-selectors))
-  .shopify-buy__product__price {
-  grid-row: 1 / span 2;
-  align-self: center;
-}
-
-/* =====================
 スマホ
 ===================== */
 @media (max-width: 520px) {
