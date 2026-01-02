@@ -797,31 +797,6 @@ select option {
   border-color: #ff7f24;
 }
 
-/* =====================
-スマホ
-===================== */
-@media (max-width: 520px) {
-  .card_bottom .shopify_mount .shopify-buy__product {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
-  }
-
-  .card_bottom .shopify-buy__product__variant-selectors {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .card_bottom .shopify-buy__product__price {
-    grid-column: 1;
-    grid-row: 2;
-  }
-
-  .card_bottom .shopify-buy__btn-wrapper {
-    grid-column: 1;
-    grid-row: 3;
-    width: 100%;
-  }
-}
 /* ========================================
 レスポンシブ対応
 ======================================== */
