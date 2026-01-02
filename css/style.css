@@ -673,88 +673,165 @@ select option {
     line-height: 1.35;
 }
 
-/* カード下部ー価格、ボタン
-------------------------------- */
-/* カード下部ー価格、規格、ボタン（shopify_mount 直描画版）
-------------------------------- */
+/* =======================================
+カード下部（Shopify：規格 / 価格 / 購入）
+左：規格 → 価格（縦）
+右：購入ボタン
+======================================= */
+
 .card_bottom {
   margin-top: 12px;
   padding-top: 10px;
   border-top: 1px dashed #e5effb;
 }
 
-/* mount全体は横幅100% */
-.shopify_mount {
-  width: 100%;
-}
-
-/* Shopifyが吐く product ルートを、以前の card_bottom と同じレイアウトにする */
-.shopify_mount .shopify-buy__product {
-  display: flex;
-  justify-content: space-between;
+/* Shopify product ルートをGrid化 */
+.card_bottom .shopify_mount .shopify-buy__product {
+  display: grid;
+  grid-template-columns: 1fr 160px;
+  grid-template-rows: auto auto;
+  column-gap: 10px;
+  row-gap: 6px;
   align-items: center;
-  gap: 10px;
+
+  margin: 0;
+  padding: 0;
 }
 
-/* 価格ブロック（左） */
-.shopify_mount .shopify-buy__product__price {
-  flex: 1;
+/* =====================
+規格（select）
+===================== */
+.card_bottom .shopify-buy__product__variant-selectors {
+  grid-column: 1;
+  grid-row: 1;
   margin: 0;
+  padding: 0;
 }
 
-/* 実価格（赤）＝以前の .shopify_price と同じ見た目 */
-.shopify_mount .shopify-buy__product__actual-price {
+.card_bottom .shopify-buy__option-select-wrapper {
   margin: 0;
+  padding: 0;
+}
+
+.card_bottom .shopify-buy__option-select__label {
+  display: none;
+}
+
+.card_bottom .shopify-buy__option-select__select {
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 8px;
+  border: 1px solid #d7e6f7;
+  border-radius: 12px;
+  background: #ffffff;
+
+  font-size: 16px;
+  font-weight: 500;
+  color: #102030;
+
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* ShopifyのデカいV（SVG）を消す */
+.card_bottom .shopify-buy__select-icon {
+  display: none;
+}
+
+/* =====================
+価格
+===================== */
+.card_bottom .shopify-buy__product__price {
+  grid-column: 1;
+  grid-row: 2;
+  margin: 0;
+  padding-left: 12px;
+}
+
+.card_bottom .visuallyhidden {
+  display: none;
+}
+
+.card_bottom .shopify-buy__product__actual-price {
   font-weight: bold;
   font-size: 14px;
   color: red;
 }
 
-/* Shopifyが入れてくるRegular Priceの表示を削除 */
-.shopify_mount .visuallyhidden {
-  display: none !important;
-}
-
-/* 価格の後に（税込）を追加 */
-.shopify_mount .shopify-buy__product__actual-price::after {
+.card_bottom .shopify-buy__product__actual-price::after {
   content: "（税込）";
-  font-size: 12px;
   margin-left: 4px;
+  font-size: 12px;
   color: #4a6075;
   font-weight: normal;
 }
 
-/* 規格（select）＝以前の select と同じ雰囲気に寄せる */
-.shopify_mount select {
-  width: 140px;              /* ここで“規格があるとき”の崩れを止める */
-  padding: 8px;
-  border: 1px solid #d7e6f7;
-  border-radius: 8px;
-  font-size: 14px;
-  background: #ffffff;
-}
-
-/* 右側ボタン枠（以前の .shopify_btn { width:160px; } 相当） */
-.shopify_mount .shopify-buy__btn {
+/* =====================
+購入ボタン
+===================== */
+.card_bottom .shopify-buy__btn-wrapper {
+  grid-column: 2;
+  grid-row: 1 / span 2;
   width: 160px;
-  margin: 0 !important;
-  background: #ff9f43 !important;
-  border-color: #ff9f43 !important;
-  color: #ffffff !important;
-  border-radius: 10px !important;
-  font-weight: bold !important;
+
+  margin: 0;
+  padding: 0;
 }
 
-.shopify_mount .shopify-buy__btn:hover {
-  background: #ff8f1f !important;
-  border-color: #ff7f24 !important;
+.card_bottom .shopify-buy__btn {
+  width: 100%;
+  padding: 8px;
+
+  background: #ff9f43;
+  border: 1px solid #ff9f43;
+  border-radius: 10px;
+
+  color: #ffffff;
+  font-weight: bold;
+  line-height: 1;
 }
 
-/* Shopifyの規格selectの▼（SVG）がデカくなる問題を潰す */
-.shopify_mount .shopify-buy__select-icon {
-  display: none !important;
+.card_bottom .shopify-buy__btn:hover {
+  background: #ff8f1f;
+  border-color: #ff7f24;
 }
 
+/* =====================
+規格が無い商品
+===================== */
+.card_bottom
+  .shopify-buy__product:not(:has(.shopify-buy__product__variant-selectors))
+  .shopify-buy__product__price {
+  grid-row: 1 / span 2;
+  align-self: center;
+}
+
+/* =====================
+スマホ
+===================== */
+@media (max-width: 520px) {
+  .card_bottom .shopify_mount .shopify-buy__product {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
+
+  .card_bottom .shopify-buy__product__variant-selectors {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .card_bottom .shopify-buy__product__price {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .card_bottom .shopify-buy__btn-wrapper {
+    grid-column: 1;
+    grid-row: 3;
+    width: 100%;
+  }
+}
 /* ========================================
 レスポンシブ対応
 ======================================== */
