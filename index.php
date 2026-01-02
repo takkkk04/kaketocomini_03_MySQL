@@ -92,10 +92,11 @@ $methodInSql = implode(",", $in);
 $sql = 
     "SELECT 
         r.*, 
-        b.shopify_id,
+        b.rac_code,
         b.quickly,
         b.systemic,
-        b.translaminar
+        b.translaminar,
+        b.shopify_id
     FROM (
         SELECT 
             registration_number,
@@ -354,13 +355,24 @@ function buildBadges(array $row, array $defs) : array {
                             
                         <article class="result_card">
                             <div class="card_title">
-                                <?php echo htmlspecialchars($p["name"] ?? "", ENT_QUOTES, "UTF-8"); ?>
+                                <span class="card_title_name">
+                                    <?php echo htmlspecialchars(
+                                        mb_convert_kana($p["name"] ?? "", "KV", "UTF-8"), ENT_QUOTES, "UTF-8"); ?>
+                                </span>
+
+                                <?php if (!empty($p["rac_code"])): ?>
+                                    <span class="rac_code">
+                                        RAC:<?php echo htmlspecialchars($p["rac_code"], ENT_QUOTES, "UTF-8"); ?>
+                                    </span>
+                                <?php endif; ?>
                             </div>
+
                             <div class="card_mid">
                                 <div class="card_left">
                                     <div 
                                         class="shopify_img shopify_cell" 
-                                        data-product-id="<?php echo htmlspecialchars((string)($p["shopify_id"] ?? ""), ENT_QUOTES, "UTF-8"); ?>">
+                                        data-product-id="<?php echo htmlspecialchars(
+                                            (string)($p["shopify_id"] ?? ""), ENT_QUOTES, "UTF-8"); ?>">
                                     </div>
                                 </div>
 
