@@ -89,7 +89,12 @@ foreach ($selectedMethods as $i => $m) {
 $methodInSql = implode(",", $in);
 
 //カード内情報取得
-$sql = "SELECT r.*, b.shopify_id
+$sql = 
+    "SELECT 
+        r.*, 
+        b.shopify_id,
+        b.systemic,
+        b.translaminar
     FROM (
         SELECT 
             registration_number,
@@ -140,6 +145,30 @@ $targetListStmt = $pdo->prepare(
         AND target <> ''
     ORDER BY target ASC"
 );
+
+// =============================================
+// カード内バッジ
+// =============================================
+$BADGE_DEFS = [
+    ["key" => "systemic",
+    "label" => "浸透移行性",
+    "class" => "badge_systemic"],
+
+    ["key" => "translaminar",
+    "label" => "浸達性",
+    "class" => "badge_translaminar"],
+];
+
+function buildBadges(array $row, array $defs) : array {
+    $out = [];
+    foreach ($defs as $def) {
+        $key = $def["key"];
+        if (!empty($row[$key])) {
+            $out[] = $def;
+        }
+    }
+    return $out;
+}
 
 ?>
 
@@ -295,11 +324,13 @@ $targetListStmt = $pdo->prepare(
                             $pid = (string)($p["shopify_id"] ?? "");
                             $boxId = "buy-" . $i;
                             $reg = (string)($p["registration_number"] ?? "");
-                            //カード内作物・病害虫一覧
+                            //カード内 作物・病害虫一覧
                             $cropListStmt->execute([":reg" => $reg, ":category" => $category]);
                             $cropList = $cropListStmt->fetchAll(PDO::FETCH_COLUMN);
                             $targetListStmt->execute([":reg" => $reg, ":category" => $category]);
                             $targetList = $targetListStmt->fetchAll(PDO::FETCH_COLUMN);
+                            //カード内バッジ 浸透移行性、浸達性
+                            $badges = buildBadges($p, $BADGE_DEFS);
                             ?>
                             
                         <article class="result_card">
@@ -358,6 +389,18 @@ $targetListStmt = $pdo->prepare(
                                             <?php echo htmlspecialchars((string)($p["score"] ?? ""), ENT_QUOTES, "UTF-8"); ?>
                                         </span>
                                     </div>
+
+                                    <!-- 特徴バッジ -->
+                                    <?php if (!empty($badges)): ?>
+                                        <div class="badge_row">
+                                            <?php foreach ($badges as $b): ?>
+                                                <span class="badge <?php echo htmlspecialchars($b["class"], ENT_QUOTES, "UTF-8"); ?>">
+                                                    <?php echo htmlspecialchars($b["label"], ENT_QUOTES, "UTF-8"); ?>
+                                                </span>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
+
                                 </div>
                             </div>
 

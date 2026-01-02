@@ -177,6 +177,7 @@ body {
     pointer-events: none;
 }
 
+
 .cat_btn {
     display: flex;
     align-items: center;
@@ -377,12 +378,17 @@ select option {
 
 .method_item {
     position: relative;
+    display: block;
 }
 
-.method_item input {
+.method_item input[type="radio"] {
+    -webkit-appearance: none;
+    appearance: none;
     position: absolute;
     opacity: 0;
-    pointer-events: none;
+    width: 0;
+    height: 0;
+    margin: 0;
 }
 
 .method_btn {
@@ -527,6 +533,38 @@ select option {
 
 .spec_val {
     font-weight: bold;
+}
+
+/* 特徴バッジ */
+.badge_row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:10px;
+}
+
+.badge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:6px 10px;
+    border-radius:999px;
+    border:1px solid #d7e6f7;
+    background:#f8fbff;
+    font-size:11px;
+    font-weight: 500;
+    color:#102030;
+    white-space:nowrap;
+}
+
+.badge_systemic{
+    background:#e6f2ff;
+    border-color:#1f6feb;
+}
+
+.badge_translaminar{
+    background:#e6f2ff;
+    border-color:#1f6feb;
 }
 
 /* カード下部ー作物・病害虫一覧
