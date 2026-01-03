@@ -88,22 +88,27 @@ foreach ($selectedMethods as $i => $m) {
 }
 $methodInSql = implode(",", $in);
 
-//カード内情報取得
+// =============================================
+// DBから情報取ってくるSQLゾーン
+// =============================================
 $sql = 
     "SELECT 
         r.*, 
         b.rac_code,
+        b.registered_on,
         b.quickly,
         b.systemic,
         b.translaminar,
-        b.shopify_id
+        b.shopify_id,
+        COALESCE(stats.crop_count, 0) AS crop_count,
+        COALESCE(stats.target_count, 0) AS target_count
     FROM (
         SELECT 
             registration_number,
             MIN(id) AS pick_id
         FROM pesticides_rules
         WHERE 
-            category = :category
+            category = :category_pick
             AND (:crop1 = '' OR crop = :crop2)
             AND (:target1 = '' OR target = :target2)
             AND method IN ($methodInSql)
@@ -113,11 +118,22 @@ $sql =
         ON r.id = picked.pick_id
     LEFT JOIN pesticides_base AS b
         ON b.registration_number = r.registration_number
+    LEFT JOIN (
+        SELECT
+            registration_number,
+            COUNT(DISTINCT NULLIF(crop, '')) AS crop_count,
+            COUNT(DISTINCT NULLIF(target, '')) AS target_count
+        FROM pesticides_rules
+        WHERE category = :category_stats
+        GROUP BY registration_number
+    ) AS stats
+        ON stats.registration_number = r.registration_number
     ORDER BY r.name ASC";
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute([
-    ":category" => $category,
+    ":category_pick" => $category,
+    ":category_stats" => $category,
     ":crop1" => $crop,
     ":crop2" => $crop,
     ":target1" => $target,
@@ -188,6 +204,64 @@ function buildBadges(array $row, array $defs) : array {
             $out[] = $def;
         }
         return $out;
+}
+
+// =============================================
+// カケトコスコア
+// =============================================
+//登録年月日：~1990 =1, 1990~ =2, 2000~ =3, 2010~ =4, 2020~ =5,×6点 Max=30点
+function yearScore30($registeredOn): int {
+    if (empty($registeredOn)) return 6;
+
+    $s = (string)$registeredOn;
+    $y = (int)substr($s, 0, 4);
+
+    if ($y <= 0) return 6;
+    if ($y >= 1990) return 12;
+    if ($y >= 2000) return 18;
+    if ($y >= 2010) return 24;
+    if ($y >= 2020) return 30;
+    return 6;
+}
+
+//速効性：DBに入ってる数字×6点 Max=30点
+function quicklyScore30($quickly): int {
+    $q = (int)($quickly ?? 0);
+    if ($q < 0) $q = 0;
+    if ($q < 5) $q = 5;
+    return $q * 6;
+}
+
+//作物数：~30 =1, 30~ =2, 40~ =3, 50~ =4, 60~ =5,×4点 Max=20点
+function cropCountScore20($cropCount) : int {
+    $n = (int)($cropCount ?? 0);
+    if ($n >= 30) return 8;
+    if ($n >= 40) return 12;
+    if ($n >= 50) return 16;
+    if ($n >= 60) return 20;
+    return 4;
+}
+
+//浸透移行性：DBで0なら5点、１なら10点
+function systemicScore10($systemic) : int {
+    return !empty($systemic) ? 10 : 5;
+}
+
+//病害虫数：DBから合計30未満なら5点、30以上なら10点
+function targetCountScore10($targetCount) : int {
+    $n = (int)($targetCount ?? 0);
+    return ($n >= 30) ? 10 : 5;
+}
+
+//カケトコスコア：全部の合計 Max=100点
+function kaketocoScore(array $p) : int {
+    $total =
+        yearScore30($p["registered_on"] ?? null) +
+        quicklyScore30($p["quickly"] ?? null) +
+        cropCountScore20($p["crop_count"] ?? null) +
+        systemicScore10($p["systemic"] ?? null) +
+        targetCountScore10($p["target_count"] ?? null);
+    return $total;
 }
 
 ?>
@@ -417,7 +491,7 @@ function buildBadges(array $row, array $defs) : array {
                                     <div class="spec_row">
                                         <span class="spec_label">カケトコスコア</span>
                                         <span class="spec_val">
-                                            <?php echo htmlspecialchars((string)($p["score"] ?? ""), ENT_QUOTES, "UTF-8"); ?>
+                                            <?php echo kaketocoScore($p); ?>
                                         </span>
                                     </div>
 
