@@ -27,6 +27,7 @@ $methodGroups = [
         "植溝内土壌散布", "樹幹散布", "添加"]
 ];
 $methodLabels = ["散布", "灌注", "ドローン散布"];
+$sort = $_GET["sort"] ?? "score_desk";
 
 // =============================================
 // ザックリ検索,作物プルダウン
@@ -140,7 +141,52 @@ $stmt->execute([
     ":target2" => $target,
 ] + $methodParams);
 
+// =============================================
+// 並び替え（スコア順、名前順）
+// =============================================
 $filtered = $stmt->fetchAll();
+
+foreach ($filtered as &$row) {
+    //カケトコスコア
+    $row["_score"] = (int)kaketocoScore($row);
+
+    //登録年度
+    $d = (string)($row["registered_on"] ?? "");
+    $row["_year"] = ($d !== "" && preg_match('/^\d{4}/', $d)) ? (int)substr($d, 0, 4) : 0;
+}
+unset($row);
+
+if ($sort === "name_asc") {
+    usort($filtered, function ($a, $b) {
+        return strcmp(
+            (string)($a["name"] ?? ""),
+            (string)($b["name"] ?? "")
+        );
+    });
+} elseif ($sort === "year_desc") {
+    usort($filtered, function ($a, $b) {
+        $ya = (int)($a["_year"] ?? 0);
+        $yb = (int)($b["_year"] ?? 0);
+        if ($yb !== $ya) return $yb <=> $ya;
+        return strcmp(
+            (string)($a["name"] ?? ""),
+            (string)($b["name"] ?? ""),
+        );
+    });
+} else {
+    usort($filtered, function ($a, $b) {
+        $sa = (int)($a["_score"] ?? 0);
+        $sb = (int)($b["_score"] ?? 0);
+        if ($sb !== $sa) {
+            return $sb <=> $sa;
+        }
+        return strcmp(
+            (string)($a["name"] ?? ""),
+            (string)($b["name"] ?? "")
+        );
+    });
+}
+
 $count = count($filtered);
 
 // =============================================
@@ -387,6 +433,10 @@ function kaketocoScore(array $p) : int {
                     <button type="submit" id="search_btn">検索</button>
                     <button type="button" id="reset_btn">リセット</button>
                 </div>
+                
+                <!-- ソートと繋ぐ役割 -->
+                <input type="hidden" name="sort" id="sort_hidden" 
+                    value="<?php echo htmlspecialchars($sort ?? "score_desk", ENT_QUOTES, "UTF-8")?>">
 
             </form>
         </section>
@@ -399,11 +449,13 @@ function kaketocoScore(array $p) : int {
                     <span id="result_count"><?php echo (int)$count ?>件</span>
                 </div>
 
+                <!-- ソート ここに置きたいけどここじゃ効かない-->
                 <div class="result_right">
                     <label for="sort" class="sort_label"></label>
                     <select name="sort" id="sort">
                         <option value="score_desc" <?php echo ($sort ==="score_desc") ? "selected" : ""; ?>>カケトコスコア順</option>
                         <option value="name_asc" <?php echo ($sort === "name_asc") ? "selected" : "";?>>名前順</option>
+                        <option value="year_desc" <?php echo ($sort === "year_desc") ? "selected" : ""; ?>>登録が新しい順</option>
                     </select>
                 </div>
             </div>
@@ -428,12 +480,13 @@ function kaketocoScore(array $p) : int {
                         ?>
                             
                         <article class="result_card">
+                            <!-- 商品名 -->
                             <div class="card_title">
                                 <span class="card_title_name">
                                     <?php echo htmlspecialchars(
                                         mb_convert_kana($p["name"] ?? "", "KV", "UTF-8"), ENT_QUOTES, "UTF-8"); ?>
                                 </span>
-
+                                <!-- RACコード -->
                                 <?php if (!empty($p["rac_code"])): ?>
                                     <span class="rac_code">
                                         RAC:<?php echo htmlspecialchars($p["rac_code"], ENT_QUOTES, "UTF-8"); ?>
@@ -442,6 +495,7 @@ function kaketocoScore(array $p) : int {
                             </div>
 
                             <div class="card_mid">
+                                <!-- 商品画像 -->
                                 <div class="card_left">
                                     <div 
                                         class="shopify_img shopify_cell" 
@@ -491,7 +545,7 @@ function kaketocoScore(array $p) : int {
                                     <div class="spec_row">
                                         <span class="spec_label">カケトコスコア</span>
                                         <span class="spec_val">
-                                            <?php echo kaketocoScore($p); ?>
+                                            <?php echo (int)($p["_score"] ?? 0); ?>
                                         </span>
                                     </div>
 
