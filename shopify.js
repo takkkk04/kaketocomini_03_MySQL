@@ -33,16 +33,16 @@ function loadShopifyBuySDK() {
                     clearInterval(t);
                     resolve();
                 }
-            },50);  //0.5秒ごとにUIが読み込まれたかチェック
+            }, 50);  //0.5秒ごとにUIが読み込まれたかチェック
 
             //10秒経ったらタイムアウト
             setTimeout(() => {
                 clearInterval(t);
                 reject(new Error("ShopifyBuy.UIが読み込めませんでした"));
-            },10000);
+            }, 10000);
             return;
         }
-        
+
         //まだなにも読み込まれてない時、SDKの読み込みをしろ
         //まずscriptタグを作れ
         const script = document.createElement("script");
@@ -86,10 +86,9 @@ async function mountAllShopify() {
         const productId = imgNode?.dataset.productId;
         if (!productId) return;
 
-        const priceNode = card.querySelector(".shopify_price");
-        const btnNode = card.querySelector(".shopify_btn");
+        const mountNode = card.querySelector(".shopify_mount");
 
-        //商品画像だけtrue
+        // ① 画像だけ別で取ってくる
         ui.createComponent("product", {
             id: String(productId),
             node: imgNode,
@@ -99,53 +98,36 @@ async function mountAllShopify() {
                     iframe: false,
                     contents: {
                         img: true,
-                        title:false,
+                        title: false,
                         price: false,
-                        button: false
+                        options: false,
+                        button: false,
+                        quantity: false,
                     },
                 },
             },
         });
 
-        //価格だけtrue
+        // ② 価格＋規格＋ボタンを “1インスタンス” でとってくる
         ui.createComponent("product", {
             id: String(productId),
-            node: priceNode,
+            node: mountNode,
             moneyFormat: "%7B%7Bamount_no_decimals%7D%7D%E5%86%86",
             options: {
                 product: {
                     iframe: false,
                     contents: {
                         img: false,
-                        title:false,
+                        title: false,
                         price: true,
-                        button: false
+                        options: true,     // ← 規格（variant）がある商品はselectが出る
+                        button: true,
+                        quantity: false,   // 今は出さない（後で出すなら別設計）
                     },
-                },
-            },
-        });
-
-        //購入ボタンだけtrue
-        ui.createComponent("product", {
-            id: String(productId),
-            node: btnNode,
-            moneyFormat: "%7B%7Bamount_no_decimals%7D%7D%E5%86%86",
-            options: {
-                product: {
-                    iframe: false,
-                    contents: {
-                        img: false,
-                        title:false,
-                        price: false,
-                        button: true
-                    },
-                    text: {button: "購入"},
+                    text: { button: "購入" },
                 },
                 cart: {
-                    text: {
-                        total: "小計",
-                        button: "購入手続きへ",
-                    },
+                    text: { total: "小計", button: "購入手続きへ" },
                 },
             },
         });
@@ -158,8 +140,96 @@ $(function () {
         alert("Shopifyの表示に失敗しました");
     });
 
-    //リセットボタン初期化処理
-    $("#reset_btn").on("click",function() {
+    $("#reset_btn").on("click", function () {
         window.location.href = window.location.pathname;
     });
 });
+
+// =============================================
+// 商品画像、価格、ボタンをHTMLにマウントする（送る）関数,これだと規格があるやつ（アルバリン）の表示が崩れる
+// =============================================
+// async function mountAllShopify() {
+//     const ui = await prepareShopifyUI();
+
+//     document.querySelectorAll(".result_card").forEach((card) => {
+//         const imgNode = card.querySelector(".shopify_img");
+//         const productId = imgNode?.dataset.productId;
+//         if (!productId) return;
+
+//         const priceNode = card.querySelector(".shopify_price");
+//         const btnNode = card.querySelector(".shopify_btn");
+
+//         //商品画像だけtrue
+//         ui.createComponent("product", {
+//             id: String(productId),
+//             node: imgNode,
+//             moneyFormat: "%7B%7Bamount_no_decimals%7D%7D%E5%86%86",
+//             options: {
+//                 product: {
+//                     iframe: false,
+//                     contents: {
+//                         img: true,
+//                         title:false,
+//                         price: false,
+//                         button: false
+//                     },
+//                 },
+//             },
+//         });
+
+//         //価格だけtrue
+//         ui.createComponent("product", {
+//             id: String(productId),
+//             node: priceNode,
+//             moneyFormat: "%7B%7Bamount_no_decimals%7D%7D%E5%86%86",
+//             options: {
+//                 product: {
+//                     iframe: false,
+//                     contents: {
+//                         img: false,
+//                         title:false,
+//                         price: true,
+//                         button: false
+//                     },
+//                 },
+//             },
+//         });
+
+//         //購入ボタンだけtrue
+//         ui.createComponent("product", {
+//             id: String(productId),
+//             node: btnNode,
+//             moneyFormat: "%7B%7Bamount_no_decimals%7D%7D%E5%86%86",
+//             options: {
+//                 product: {
+//                     iframe: false,
+//                     contents: {
+//                         img: false,
+//                         title:false,
+//                         price: false,
+//                         button: true
+//                     },
+//                     text: {button: "購入"},
+//                 },
+//                 cart: {
+//                     text: {
+//                         total: "小計",
+//                         button: "購入手続きへ",
+//                     },
+//                 },
+//             },
+//         });
+//     });
+// }
+
+// $(function () {
+//     mountAllShopify().catch((e) => {
+//         console.error(e);
+//         alert("Shopifyの表示に失敗しました");
+//     });
+
+//     //リセットボタン初期化処理
+//     $("#reset_btn").on("click",function() {
+//         window.location.href = window.location.pathname;
+//     });
+// });
