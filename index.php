@@ -329,6 +329,8 @@ function kaketocoScore(array $p) : int {
             <a href="./index.php">カケトコ mini</a>
         </h1>
 
+        <a href="./user_create.php" class="register_btn">会員登録</a>
+
         <div class="header_menu">
             <button type="button" id="menu_btn" class="menu_btn" aria-expanded="false" aria-controls="menu_panel">
                 <span class="menu_icon" aria-hidden="true"></span>
